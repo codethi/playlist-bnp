@@ -1,0 +1,28 @@
+{
+  "name": "playlist-bnp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index",
+    "dev": "nodemon index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codethi/playlist-bnp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/codethi/playlist-bnp/issues"
+  },
+  "homepage": "https://github.com/codethi/playlist-bnp#readme",
+  "dependencies": {
+    "dotenv": "^15.0.0",
+    "ejs": "^3.1.6",
+    "express": "^4.17.2",
+    "mongoose": "^6.1.9",
+    "nodemon": "^2.0.15"
+  }
+}
