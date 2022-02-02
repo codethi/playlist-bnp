@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <link rel="shortcut icon" type="imagex/png" href="/img/icon.png">
     <title>Playlist | Admin</title>
 </head>
 
@@ -70,7 +71,7 @@
                             <%= music.author %>
                         </td>
                         <td id="actions">
-                            <a id="editMusic" href="/update">Editar</a>
+                            <a id="editMusic" href="/getById/<%= music._id %>">Editar</a>
                             <a id="deleteMusic" href="/delete/<%= music._id %>">Apagar</a>
                         </td>
                     </tr>
@@ -79,6 +80,37 @@
 
         </table>
     </section>
+
+
+    <% if (music != null) { %>
+        <section class="modal">
+            <div id="card">
+
+                <a href="/admin" id="fechar"><i class="bi bi-x-lg"></i></a>
+                <h2>Atualizar música</h2>
+                <hr>
+
+                <form id="modal" action="/update/<%= music._id %>" method="POST">
+
+                    <label for="nome">Nome:</label>
+                    <input type="text" name="name" id="nome" value="<%= music.name %>">
+
+                    <label for="artista">Artista:</label>
+                    <input type="text" name="author" id="artista" value="<%= music.author %>">
+
+                    <label for="imagem">Link da Imagem:</label>
+                    <input type="text" name="linkImagem" id="imagem" value="<%= music.linkImagem %>">
+
+                    <label for="audio">Link da Música:</label>
+                    <input type="text" name="linkMusic" id="audio" value="<%= music.linkMusic %>">
+
+                    <button type="submit">Atualizar</button>
+
+                </form>
+
+            </div>
+        </section>
+    <% } %>
 </body>
 
 </html>

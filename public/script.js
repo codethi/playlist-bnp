@@ -1,27 +1,9 @@
-/* Play em cada música da playlist */
-/* const playlist = document.querySelector("#player"); */
-/* playlist.addEventListener("click", (ev) => {
-  if (ev.target.nodeName == "I") {
-    const tr = ev.path[3];
-    const audio = tr.childNodes[9].childNodes[1];
-
-    ev.target.classList.toggle("playing");
-
-    if (ev.target.classList.contains("playing")) {
-      ev.target.classList.replace("bi-play-circle", "bi-pause-circle");
-      audio.play();
-    } else {
-      ev.target.classList.replace("bi-pause-circle", "bi-play-circle");
-      audio.pause();
-    }
-  }
-}); */
-
-/* Área inferior de controles */
-
+/* Área de controles */
 const controls = document.querySelector("#controls");
+const btnPlay = document.querySelector("#play-control");
 let index = 0;
 let currentMusic;
+let isPlaying = false;
 
 controls.addEventListener("click", (ev) => {
   const audios = [];
@@ -29,61 +11,55 @@ controls.addEventListener("click", (ev) => {
 
   const linhas =
     ev.path[2].childNodes[5].childNodes[1].childNodes[3].childNodes;
-  /* console.log(linhas); */
 
   linhas.forEach((item) => {
     if (item.nodeName != "#text") {
-      musica.nome = item.childNodes[5].childNodes[0].data;
-      musica.artista = item.childNodes[7].childNodes[0].data;
-      musica.imagem = item.childNodes[3].childNodes[0].currentSrc;
-      musica.audio = item.childNodes[9].childNodes[1];
+      musica.nome = item.childNodes[3].childNodes[0].data;
+      musica.artista = item.childNodes[5].childNodes[0].data;
+      musica.imagem = item.childNodes[1].childNodes[0].currentSrc;
+      musica.audio = item.childNodes[7].childNodes[1];
       audios.push(musica);
       musica = {};
     }
   });
 
-  /* console.log(audios); */
+  function updateDataMusic() {
+    currentMusic = audios[index];
+    document.querySelector("#currentImg").src = currentMusic.imagem;
+    document.querySelector("#currentName").innerText = currentMusic.nome;
+    document.querySelector("#currentArtist").innerText = currentMusic.artista;
+    document.querySelector("#volume").value = currentMusic.audio.volume * 100;
 
-  currentMusic = audios[index];
-  document.querySelector("#currentImg").src = currentMusic.imagem;
-  const currentName = (document.querySelector("#currentName").innerText =
-    currentMusic.nome);
-  const currentArtist = (document.querySelector("#currentArtist").innerText =
-    currentMusic.artista);
+    const progressbar = document.querySelector("#progressbar");
+    const textCurrentDuration = document.querySelector("#current-duration");
+    const textTotalDuration = document.querySelector("#total-duration");
+
+    progressbar.max = currentMusic.audio.duration;
+    textTotalDuration.innerText = secondsToMinutes(currentMusic.audio.duration);
+    currentMusic.audio.ontimeupdate = () => {
+      textCurrentDuration.innerText = secondsToMinutes(
+        currentMusic.audio.currentTime
+      );
+      progressbar.valueAsNumber = currentMusic.audio.currentTime;
+    };
+  }
 
   /* Botão Play */
   if (ev.target.id == "play-control") {
-    const btnPlay = document.querySelector("#play-control");
-    const textCurrentDuration = document.querySelector("#current-duration");
-    const textTotalDuration = document.querySelector("#total-duration");
-    const progressbar = document.querySelector("#progressbar");
+    if (index === 0) {
+      updateDataMusic();
+    }
 
-    progressbar.max = currentMusic.audio.duration;
-
-    currentMusic.audio.classList.toggle("playing");
-
-    if (currentMusic.audio.classList.contains("playing")) {
+    if (!isPlaying) {
       btnPlay.classList.replace("bi-play-fill", "bi-pause-fill");
       currentMusic.audio.play();
-      textTotalDuration.innerText = secondsToMinutes(
-        currentMusic.audio.duration
-      );
-      currentMusic.audio.ontimeupdate = () => {
-        textCurrentDuration.innerText = secondsToMinutes(
-          currentMusic.audio.currentTime
-        );
-        progressbar.valueAsNumber = currentMusic.audio.currentTime;
-      };
+      isPlaying = true;
     } else {
       btnPlay.classList.replace("bi-pause-fill", "bi-play-fill");
       currentMusic.audio.pause();
+      isPlaying = false;
     }
-
-    document.querySelector("#currentImg").src = currentMusic.imagem;
-    const currentName = (document.querySelector("#currentName").innerText =
-      currentMusic.nome);
-    const currentArtist = (document.querySelector("#currentArtist").innerText =
-      currentMusic.artista);
+    musicEnded();
   }
   /* Fim Botão Play */
 
@@ -95,32 +71,71 @@ controls.addEventListener("click", (ev) => {
     } else {
       ev.target.classList.replace("bi-volume-mute-fill", "bi-volume-up-fill");
     }
+    musicEnded();
   }
   /* Fim Botão Mute */
 
   /* Range de Volume */
   if (ev.target.id == "volume") {
     currentMusic.audio.volume = ev.target.valueAsNumber / 100;
+    musicEnded();
   }
   /* Fim Range de Volume */
 
   /* Escolhendo ponto da música com a progressbar */
   if (ev.target.id == "progressbar") {
     currentMusic.audio.currentTime = ev.target.valueAsNumber;
+    musicEnded();
   }
   /* Fim Escolhendo ponto da música com a progressbar */
 
   /* Botão de Próxima música */
+
   if (ev.target.id == "next-control") {
     index++;
+
+    if (index == audios.length) {
+      index = 0;
+    }
+
+    currentMusic.audio.pause();
+    updateDataMusic();
+    currentMusic.audio.play();
+    btnPlay.classList.replace("bi-play-fill", "bi-pause-fill");
+    musicEnded();
   }
   /* Fim Botão de Próxima música */
 
   /* Botão de música anterior */
   if (ev.target.id == "prev-control") {
     index--;
+
+    if (index === -1) {
+      index = audios.length - 1;
+    }
+
+    currentMusic.audio.pause();
+    updateDataMusic();
+    currentMusic.audio.play();
+    btnPlay.classList.replace("bi-play-fill", "bi-pause-fill");
+    musicEnded();
   }
   /* Fim Botão de música anterior */
+
+  function musicEnded() {
+    currentMusic.audio.addEventListener("ended", () => {
+      index++;
+
+      if (index == audios.length) {
+        index = 0;
+      }
+
+      currentMusic.audio.pause();
+      updateDataMusic();
+      currentMusic.audio.play();
+      btnPlay.classList.replace("bi-play-fill", "bi-pause-fill");
+    });
+  }
 });
 
 function secondsToMinutes(time) {
