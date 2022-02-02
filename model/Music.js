@@ -9,10 +9,10 @@ const musictSchema = new mongoose.Schema({
     type: String,
     require: true,
   },
-  album: {
+  linkImagem: {
     type: String,
     require: true,
-  },
+  },  
   linkMusic: {
     type: String,
     require: true,
